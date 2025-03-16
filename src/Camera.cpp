@@ -4,40 +4,40 @@
 #include <Windows.h>
 #include <gl/gl.h>
 
-void Camera::apply()
+void applyCamera(Camera* cam)
 {
-    glRotatef(-angleX, 1, 0 ,0);
-    glRotatef(-angleZ, 0, 0 ,1);
-    glTranslatef(-x, -y, -z);
+    glRotatef(-cam->angleX, 1, 0 ,0);
+    glRotatef(-cam->angleZ, 0, 0 ,1);
+    glTranslatef(-cam->x, -cam->y, -cam->z);
 }
 
-void Camera::rotate(float dx, float dz)
+void rotateCamera(Camera* cam, float dx, float dz)
 {
-    angleZ += dz;
+    cam->angleZ += dz;
 
-    if(angleZ < 0) angleZ += 360;
-    if(angleZ > 360) angleZ -= 360;
+    if(cam->angleZ < 0) cam->angleZ += 360;
+    if(cam->angleZ > 360) cam->angleZ -= 360;
 
-    angleX += dx;
+    cam->angleX += dx;
 
-    if(angleX < 0) angleX = 0;
-    if(angleX > 180) angleX = 180;
+    if(cam->angleX < 0) cam->angleX = 0;
+    if(cam->angleX > 180) cam->angleX = 180;
 }
 
-void Camera::rotateByMouse(int x, int y, float speed)
+void rotateByMouseCamera(Camera* cam, int x, int y, float speed)
 {
     POINT cursor_pos{0, 0};
     POINT base = {x, y};
 
     GetCursorPos(&cursor_pos);
-    rotate((base.y - cursor_pos.y) * speed, (base.x - cursor_pos.x) * speed);
+    rotateCamera(cam, (base.y - cursor_pos.y) * speed, (base.x - cursor_pos.x) * speed);
 
     SetCursorPos(base.x, base.y);
 }
 
-void Camera::move(int forward, int right, float speed)
+void moveCamera(Camera* cam, int forward, int right, float speed)
 {
-    float angle = -angleZ * DEGTORAD;
+    float angle = -cam->angleZ * DEGTORAD;
 
     if(forward > 0)
         angle += right > 0 ? M_PI_4 : (right < 0 ? -M_PI_4 : 0);
@@ -54,7 +54,7 @@ void Camera::move(int forward, int right, float speed)
 
     if(speed != 0)
     {
-        x += sin(angle) * speed;
-        y += cos(angle) * speed;
+        cam->x += sin(angle) * speed;
+        cam->y += cos(angle) * speed;
     }
 }

@@ -3,16 +3,16 @@
 
 struct Camera
 {
-    void apply();
-    void rotate(float dx, float dz);
-    void rotateByMouse(int x, int y, float speed);
-    void move(int forward, int right, float speed);
-
-    float x = 0;
-    float y = 0;
-    float z = 1.7;
-    float angleX = 90;
-    float angleZ = 0;
+    float x;
+    float y;
+    float z;
+    float angleX;
+    float angleZ;
 };
+
+void applyCamera(Camera* cam);
+void rotateCamera(Camera* cam, float dx, float dz);
+void rotateByMouseCamera(Camera* cam, int x, int y, float speed);
+void moveCamera(Camera* cam, int forward, int right, float speed);
 
 #endif // CAMERA_HPP

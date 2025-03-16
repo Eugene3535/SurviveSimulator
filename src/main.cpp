@@ -618,10 +618,10 @@ void MovePlayer()
     int right = GetKeyState('D') < 0 ? 1 : (GetKeyState('A') < 0 ? - 1 : 0);
     float speed = 0.1f + (buffs.speed.timer > 0 ? 0.2f : 0.0f);
     
-    pCamera->move(forward, right, speed);
+    moveCamera(pCamera, forward, right, speed);
 
     if(IsMouseBind)
-        pCamera->rotateByMouse(400, 400, 0.2f);
+        rotateByMouseCamera(pCamera, 400, 400, 0.2f);
 
     pCamera->z = GetHeightInPoint(pCamera->x, pCamera->y) + 1.7f;
 }
@@ -725,7 +725,7 @@ void DrawScene()
         glPopMatrix();
     }
 
-    pCamera->apply();
+    applyCamera(pCamera);
 
     glPushMatrix();
     {
@@ -1208,6 +1208,11 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     Camera camera;
+    camera.x = 0;
+    camera.y = 0;
+    camera.z = 1.7;
+    camera.angleX = 90;
+    camera.angleZ = 0;
     pCamera = &camera;
 
     RECT rect{};
