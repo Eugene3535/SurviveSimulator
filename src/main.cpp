@@ -19,7 +19,6 @@ float screen_ratio;
 bool IsMouseBind = true;
 
 // Map
-#define MAP_SIZE 100
 
 struct Vertex
 {
@@ -139,7 +138,6 @@ std::size_t tree_count;
 
 float sunVertices[80];
 
-#define SELECTED_OBJECT_MAX 255
 struct SelectedObject
 {
     int object_num = 0; 
@@ -160,13 +158,11 @@ struct Slot
     int height = 0;
 };
 
-#define BAG_SIZE 16
 Slot bag[BAG_SIZE];
 
 float bagRectVert[] = { 0, 0, 1, 0, 1, 1, 0 ,1 };
 float bagRectUV[] = { 0, 0, 1, 0, 1, 1, 0 ,1 };
 
-#define HEALTH_MAX 20
 int current_HP = 15;
 
 float heartVert[] = 
@@ -1165,55 +1161,33 @@ void ReleaseResources()
     glDeleteTextures(1, &tex_health_potion);
 }
 
-int WINAPI WinMain(HINSTANCE hInstance,
-                   HINSTANCE hPrevInstance,
-                   LPSTR lpCmdLine,
-                   int nCmdShow)
+int main()
 {
-    WNDCLASSEX wcex;
+    WNDCLASSA wcex;
     HWND hwnd;
     HDC hDC;
     HGLRC hRC;
     MSG msg;
     BOOL bQuit = FALSE;
-    float theta = 0.0f;
 
     /* register window class */
-    wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_OWNDC;
     wcex.lpfnWndProc = WindowProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
     wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wcex.lpszMenuName = NULL;
     wcex.lpszClassName = "GLSample";
-    wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);;
 
+    if (!RegisterClassA(&wcex))
+        return -1;
 
-    if (!RegisterClassEx(&wcex))
-        return 0;
-
-    /* create main window */
-    hwnd = CreateWindowEx(0,
-                          "GLSample",
-                          "OpenGL Sample",
-                          WS_OVERLAPPEDWINDOW,
-                          CW_USEDEFAULT,
-                          CW_USEDEFAULT,
-                          1200,
-                          900,
-                          NULL,
-                          NULL,
-                          hInstance,
-                          NULL);
-
-    ShowWindow(hwnd, nCmdShow);
+    hwnd = CreateWindowEx(0, "GLSample", "OpenGL Sample", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1200, 900, NULL, NULL, NULL, NULL);
+    ShowWindow(hwnd, SW_SHOWNORMAL);
     SetCursor(wcex.hCursor);
 
-    /* enable OpenGL for the window */
     EnableOpenGL(hwnd, &hDC, &hRC);
 
     glEnable(GL_DEPTH_TEST);
@@ -1259,7 +1233,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
             SwapBuffers(hDC);
 
-            theta += 1.0f;
             Sleep (1.0f / 60.0f);
         }
     }

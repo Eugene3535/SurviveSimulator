@@ -21,7 +21,7 @@ void Camera::rotate(float dx, float dz)
     angleX += dx;
 
     if(angleX < 0) angleX = 0;
-    if(angleX > 800) angleX = 180;
+    if(angleX > 180) angleX = 180;
 }
 
 void Camera::rotateByMouse(int x, int y, float speed)
