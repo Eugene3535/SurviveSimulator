@@ -1,10 +1,10 @@
+#include <stdlib.h>
+
 #include <Windows.h>
 #include <gl/gl.h>
 
 #include "Camera.hpp"
 #include "Defines.hpp"
-
-#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -53,12 +53,12 @@ struct Animation
 
 struct CompositeTree
 {
-    std::vector<Object> tree_parts;
-    std::size_t part_count = 0;
+    Object* tree_parts;
+    GLuint part_count = 0;
     GLuint type = 0;
 };
 
-std::vector<Object> objects;
+Object* objects;
 GLuint objectCount;
 
 Vertex vertices[MAP_SIZE][MAP_SIZE];
@@ -133,8 +133,8 @@ GLuint cubeIndices[] =
 };
 
 GLuint cubeIndexCount = sizeof(cubeIndices) / sizeof(GLuint);
-std::vector<CompositeTree> trees;
-std::size_t tree_count;
+CompositeTree* trees;
+GLuint tree_count;
 
 float sunVertices[80];
 
@@ -206,17 +206,21 @@ struct Resipe
     GLuint components[3][3]{};
     GLuint result = 0;
 };
-std::vector<Resipe> resipes;
+
+Resipe* resipes;
+const GLuint resipe_count = 3;
 
 void CheckResipe()
 {
-    for (const auto& resipe : resipes)
+    // for (const auto& resipe : resipes)
+    for(GLuint i = 0; i < resipe_count; ++i)
     {
+        Resipe* resipe = resipes + i;
         bool isResipe = true;
 
         for (GLuint i = 0; i < 3; ++i)
             for (GLuint j = 0; j < 3; ++j)       
-                if (craft_interface.items[i][j].type != resipe.components[i][j])
+                if (craft_interface.items[i][j].type != resipe->components[i][j])
                 {
                     isResipe = false; 
                     continue;
@@ -228,7 +232,7 @@ void CheckResipe()
                 for (GLuint j = 0; j < 3; ++j)
                     craft_interface.items[i][j].type = 0;
 
-			craft_interface.result_item.type = resipe.result;
+			craft_interface.result_item.type = resipe->result;
 
 			break;
 		}
@@ -384,27 +388,27 @@ void CreateHill(int x, int y, int r, int h)
     }
 }
 
-void CreateCompositeTree(CompositeTree& tree, GLuint type, float x, float y)
+void CreateCompositeTree(CompositeTree* tree, GLuint type, float x, float y)
 {
-    tree.type = type;
+    tree->type = type;
     float z = GetHeightInPoint(x + 0.5f, y + 0.5f) - 0.5f; // tree`s trunk center height
-    std::size_t tree_height = 6;
-    std::size_t leafs = 5 * 5 * 2 - 2 + 3 * 3 * 2;
+    GLuint tree_height = 6;
+    GLuint leafs = 5 * 5 * 2 - 2 + 3 * 3 * 2;
 
-    tree.part_count = tree_height + leafs;
-    tree.tree_parts.resize(tree.part_count);
+    tree->part_count = tree_height + leafs;
+    tree->tree_parts = (Object*)malloc(tree->part_count * sizeof(Object));
 
-    int i = 0;
-
-    for (auto& part : tree.tree_parts)
+    for (GLuint i = 0; i < tree->part_count; ++i)  
     {
-        part.type = 1;
-        part.x = x;
-        part.y = y;
-        part.z = z + i++;
+        Object* part = tree->tree_parts + i;
+        part->scale = 1;
+        part->type = 1;
+        part->x = x;
+        part->y = y;
+        part->z = z + i;
     }
 
-    std::size_t pos = tree_height;
+    GLuint pos = tree_height;
 
     for (int k = 0; k < 2; ++k)
         for (int i = x - 2; i <= x + 2; ++i)
@@ -412,10 +416,10 @@ void CreateCompositeTree(CompositeTree& tree, GLuint type, float x, float y)
             {
                 if ((i != x) || (j != y))
                 {
-                    tree.tree_parts[pos].type = 2;
-                    tree.tree_parts[pos].x = i;
-                    tree.tree_parts[pos].y = j;
-                    tree.tree_parts[pos].z = z + tree_height - 2 + k;
+                    tree->tree_parts[pos].type = 2;
+                    tree->tree_parts[pos].x = i;
+                    tree->tree_parts[pos].y = j;
+                    tree->tree_parts[pos].z = z + tree_height - 2 + k;
                     pos++;
                 }
             }
@@ -424,10 +428,10 @@ void CreateCompositeTree(CompositeTree& tree, GLuint type, float x, float y)
         for (int i = x - 1; i <= x + 1; ++i)
             for (int j = y - 1; j <= y + 1; ++j)
             {
-                 tree.tree_parts[pos].type = 2;
-                 tree.tree_parts[pos].x = i;
-                 tree.tree_parts[pos].y = j;
-                 tree.tree_parts[pos].z = z + tree_height + k;
+                 tree->tree_parts[pos].type = 2;
+                 tree->tree_parts[pos].x = i;
+                 tree->tree_parts[pos].y = j;
+                 tree->tree_parts[pos].z = z + tree_height + k;
                  pos++;
             }
 }
@@ -508,7 +512,8 @@ void InitMap()
         0, tex_mushroom, 0
     };
 
-    auto* resipe = &resipes.emplace_back();
+    resipes = (Resipe*)calloc(3, sizeof(Resipe));
+    Resipe* resipe = resipes;
 
     for (GLuint i = 0; i < 3; ++i)
         for (GLuint j = 0; j < 3; ++j)
@@ -516,7 +521,7 @@ void InitMap()
 
     resipe->result = tex_vision_potion;
 
-    resipe = &resipes.emplace_back();
+    ++resipe;
 
     for (GLuint i = 0; i < 3; ++i)
         for (GLuint j = 0; j < 3; ++j)
@@ -524,7 +529,7 @@ void InitMap()
 
     resipe->result = tex_speed_potion;
 
-    resipe = &resipes.emplace_back();
+    ++resipe;
 
     for (GLuint i = 0; i < 3; ++i)
         for (GLuint j = 0; j < 3; ++j)
@@ -575,7 +580,7 @@ void InitMap()
     GLuint treeCount = 40;
     objectCount = grassCount + mushroomCount + treeCount;
 
-    objects.resize(objectCount);
+    objects = (Object*)malloc(objectCount * sizeof(Object));
 
     for(int i = 0; i < objectCount; ++i)
     {
@@ -600,11 +605,11 @@ void InitMap()
         objects[i].z = GetHeightInPoint(objects[i].x, objects[i].y);
     }
 
-    treeCount = 50;
-    trees.resize(treeCount);
+    tree_count = 50;
+    trees = (CompositeTree*)malloc(tree_count * sizeof(CompositeTree));
 
-    for (std::size_t i = 0; i < treeCount; ++i)
-        CreateCompositeTree(trees[i], tex_wood, rand() % MAP_SIZE, rand() % MAP_SIZE);
+    for (GLuint i = 0; i < tree_count; ++i)
+        CreateCompositeTree(trees + i, tex_wood, rand() % MAP_SIZE, rand() % MAP_SIZE);
 }
 
 void MovePlayer()
@@ -820,26 +825,30 @@ void DrawScene()
 //  Draw composite trees
     if (!IsSelectMode)
     {
-        for (auto& tree : trees)
+        for(GLuint n = 0; n < tree_count; ++n)
         {
+            CompositeTree* tree = trees + n;
+
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
             glVertexPointer(3, GL_FLOAT, 0, cube);
             glNormal3f(0, 0, 1);
-            glBindTexture(GL_TEXTURE_2D, tree.type);
+            glBindTexture(GL_TEXTURE_2D, tree->type);
 
-            for (auto& part : tree.tree_parts)
+            for (GLuint i = 0; i < tree->part_count; ++i)     
             {
-                if (part.type == 1)
+                Object* part = tree->tree_parts + i;
+
+                if (part->type == 1)
                     glTexCoordPointer(2, GL_FLOAT, 0, cubeUV_tree_trunk);
                 else
                     glTexCoordPointer(2, GL_FLOAT, 0, cubeUV_tree_leafs);
 
                 glPushMatrix();
 
-                glTranslatef(part.x, part.y, part.z);
-                glScalef(part.scale, part.scale, part.scale);
+                glTranslatef(part->x, part->y, part->z);
+                glScalef(part->scale, part->scale, part->scale);
 
                 glDrawElements(GL_TRIANGLES, cubeIndexCount, GL_UNSIGNED_INT, cubeIndices);
 
@@ -876,7 +885,7 @@ void CollectObject(HWND hwnd)
             if (selected_object_array[i].color == clr[0])
             {
                 //objects[selected_object_array[i].object_num].z = -1000;
-                SetAnimation(&anim, objects.data() + selected_object_array[i].object_num);
+                SetAnimation(&anim, objects + selected_object_array[i].object_num);
             }
         }
     }
@@ -1159,6 +1168,12 @@ void ReleaseResources()
     glDeleteTextures(1, &tex_vision_potion);
     glDeleteTextures(1, &tex_speed_potion);
     glDeleteTextures(1, &tex_health_potion);
+
+    for (GLuint i = 0; i < tree_count; ++i)
+        free(trees[i].tree_parts);
+
+    free(trees);
+    free(objects);
 }
 
 int main()
