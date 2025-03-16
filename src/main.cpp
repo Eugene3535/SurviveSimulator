@@ -470,20 +470,20 @@ void InitMap()
         sunVertices[i + 1] = cos(a * i) * l;
     }
 
-    tex_field = GetTexture("textures/field.png");
-    tex_grass = GetTexture("textures/grass.png");
-    tex_red_flower = GetTexture("textures/flower.png");
-    tex_yellow_flower = GetTexture("textures/flower2.png");
-    tex_mushroom = GetTexture("textures/mushroom.png");
-    tex_tree = GetTexture("textures/tree.png");
-    tex_tree2 = GetTexture("textures/tree2.png");
-    tex_wood = GetTexture("textures/wood.png");
-    tex_speed = GetTexture("textures/speed_icon.png");
-    tex_eye = GetTexture("textures/eye_icon.png");
-    tex_mortar = GetTexture("textures/mortar.png");
-    tex_vision_potion = GetTexture("textures/potion_eye.png");
-    tex_speed_potion = GetTexture("textures/potion_speed.png");
-    tex_health_potion = GetTexture("textures/potion_life.png");
+    tex_field = GetTexture("res/textures/field.png");
+    tex_grass = GetTexture("res/textures/grass.png");
+    tex_red_flower = GetTexture("res/textures/flower.png");
+    tex_yellow_flower = GetTexture("res/textures/flower2.png");
+    tex_mushroom = GetTexture("res/textures/mushroom.png");
+    tex_tree = GetTexture("res/textures/tree.png");
+    tex_tree2 = GetTexture("res/textures/tree2.png");
+    tex_wood = GetTexture("res/textures/wood.png");
+    tex_speed = GetTexture("res/textures/speed_icon.png");
+    tex_eye = GetTexture("res/textures/eye_icon.png");
+    tex_mortar = GetTexture("res/textures/mortar.png");
+    tex_vision_potion = GetTexture("res/textures/potion_eye.png");
+    tex_speed_potion = GetTexture("res/textures/potion_speed.png");
+    tex_health_potion = GetTexture("res/textures/potion_life.png");
 
     bag[0].type = tex_mortar;
 
