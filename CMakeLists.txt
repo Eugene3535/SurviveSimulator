@@ -10,8 +10,8 @@ set(SRC_FILES
 )
 
 set(HDR_FILES
-	src/Camera.hpp
-	src/Defines.hpp
+	src/Camera.h
+	src/Defines.h
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${HDR_FILES})

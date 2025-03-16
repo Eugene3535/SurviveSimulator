@@ -1,5 +1,5 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef CAMERA_H
+#define CAMERA_H
 
 struct Camera
 {
@@ -15,4 +15,4 @@ void rotateCamera(Camera* cam, float dx, float dz);
 void rotateByMouseCamera(Camera* cam, int x, int y, float speed);
 void moveCamera(Camera* cam, int forward, int right, float speed);
 
-#endif // CAMERA_HPP
+#endif // CAMERA_H

@@ -3,11 +3,11 @@
 #include <Windows.h>
 #include <gl/gl.h>
 
-#include "Camera.hpp"
-#include "Defines.hpp"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#include "camera.h"
+#include "defines.h"
 
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);

@@ -1,8 +1,9 @@
-#include "Camera.hpp"
-#include "Defines.hpp"
-
 #include <Windows.h>
 #include <gl/gl.h>
+
+#include "camera.h"
+#include "defines.h"
+
 
 void applyCamera(Camera* cam)
 {
@@ -10,6 +11,7 @@ void applyCamera(Camera* cam)
     glRotatef(-cam->angleZ, 0, 0 ,1);
     glTranslatef(-cam->x, -cam->y, -cam->z);
 }
+
 
 void rotateCamera(Camera* cam, float dx, float dz)
 {
@@ -24,6 +26,7 @@ void rotateCamera(Camera* cam, float dx, float dz)
     if(cam->angleX > 180) cam->angleX = 180;
 }
 
+
 void rotateByMouseCamera(Camera* cam, int x, int y, float speed)
 {
     POINT cursor_pos{0, 0};
@@ -34,6 +37,7 @@ void rotateByMouseCamera(Camera* cam, int x, int y, float speed)
 
     SetCursorPos(base.x, base.y);
 }
+
 
 void moveCamera(Camera* cam, int forward, int right, float speed)
 {
