@@ -1,4 +1,8 @@
 #include <stdlib.h>
+#include <stdbool.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include <Windows.h>
 #include <gl/gl.h>
@@ -16,47 +20,48 @@ void DisableOpenGL(HWND, HDC, HGLRC);
 POINT screen_size;
 float screen_ratio;
 
-bool IsMouseBind = true;
+BOOL IsMouseBind = true;
 
 // Map
-
-struct Vertex
+typedef struct
 {
-    float x = 0;
-    float y = 0;
-    float z = 0;
-};
+    float x;
+    float y;
+    float z;
+} Vertex;
 
-struct TexCoords
+typedef struct
 {
-    float u = 0.0f;
-    float v = 0.0f;
-};
+    float u;
+    float v;
+} TexCoords;
 
-struct Object
+typedef struct 
 {
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float scale = 1;
-    GLuint type = 0;
-};
+    float x;
+    float y;
+    float z;
+    float scale;
+    GLuint type;
+} Object;
 
-struct Animation
+typedef struct
 {
-    Object* pObject = nullptr;
-    float dx = 0.0f;
-    float dy = 0.0f;
-    float dz = 0.0f;
-    int count = 0;
-}anim;
+    Object* pObject;
+    float dx;
+    float dy;
+    float dz;
+    int count;
+}Animation;
 
-struct CompositeTree
+Animation anim;
+
+typedef struct
 {
     Object* tree_parts;
-    GLuint part_count = 0;
-    GLuint type = 0;
-};
+    GLuint part_count;
+    GLuint type;
+} CompositeTree;
 
 Object* objects;
 GLuint objectCount;
@@ -138,25 +143,25 @@ GLuint tree_count;
 
 float sunVertices[80];
 
-struct SelectedObject
+typedef struct
 {
-    int object_num = 0; 
-    int color = 0;
-};
+    int object_num; 
+    int color;
+} SelectedObject;
 
 SelectedObject selected_object_array[SELECTED_OBJECT_MAX];
 
 bool IsSelectMode = false;
 int selected_object_count;
 
-struct Slot
+typedef struct
 {
-    GLuint type = 0;
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
-};
+    GLuint type;
+    int x;
+    int y;
+    int width;
+    int height;
+} Slot;
 
 Slot bag[BAG_SIZE];
 
@@ -175,37 +180,41 @@ float heartVert[] =
     0.75f, 0.0f
 };
 
-struct BuffTimer
+typedef struct
 {
-    int timer = 0;
-    int max_time = 0;
-};
+    int timer;
+    int max_time;
+} BuffTimer;
 
-struct 
+typedef struct 
 {
     BuffTimer speed;
     BuffTimer eye;
-}buffs;
+} Buff;
+
+Buff buffs;
 
 GLuint handleItemType;
 POINT mousePos;
 
-struct
+typedef struct
 {
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
-    Slot items[3][3]{};
-    Slot result_item{};
-    bool onDraw = false;
-}craft_interface;
+    int x;
+    int y;
+    int width;
+    int height;
+    Slot items[3][3];
+    Slot result_item;
+    bool onDraw;
+} CraftInterface;
 
-struct Resipe
+CraftInterface craft_interface;
+
+typedef struct
 {
-    GLuint components[3][3]{};
-    GLuint result = 0;
-};
+    GLuint components[3][3];
+    GLuint result;
+} Resipe;
 
 Resipe* resipes;
 const GLuint resipe_count = 3;
@@ -239,10 +248,10 @@ void CheckResipe()
 	}
 }
 
-bool IsPointInSlot(const Slot& slot, int x, int y)
+bool IsPointInSlot(const Slot* slot, int x, int y)
 {
-    return (x > slot.x && x < slot.x + slot.width &&
-            y > slot.y && y < slot.y + slot.height);
+    return (x > slot->x && x < slot->x + slot->width &&
+            y > slot->y && y < slot->y + slot->height);
 }
 
 void ResizeCraftInterface(int scale)
@@ -318,7 +327,7 @@ void MoveAnimation(Animation* pAnim)
                 }
             }
             pAnim->pObject->z = GetHeightInPoint(pAnim->pObject->x, pAnim->pObject->y);
-            pAnim->pObject = nullptr;
+            pAnim->pObject = NULL;
         }
     }
 }
@@ -348,21 +357,21 @@ GLuint GetTexture(const char* filepath)
     return handle;
 }
 
-void CalcNormals(const Vertex& a, const Vertex& b, const Vertex& c, Vertex& n)
+void CalcNormals(const Vertex* a, const Vertex* b, const Vertex* c, Vertex* n)
 {
     float wrki = 0;
-    Vertex v1{ a.x - b.x, a.y - b.y, a.z - b.z };
-    Vertex v2{ b.x - c.x, b.y - c.y, b.z - c.z };
+    Vertex v1 = { a->x - b->x, a->y - b->y, a->z - b->z };
+    Vertex v2 = { b->x - c->x, b->y - c->y, b->z - c->z };
 
-    n.x = (v1.y * v2.z - v1.z *  v2.y);
-    n.y = (v1.z * v2.x - v1.x *  v2.z);
-    n.z = (v1.x * v2.y - v1.y *  v2.x);
+    n->x = (v1.y * v2.z - v1.z *  v2.y);
+    n->y = (v1.z * v2.x - v1.x *  v2.z);
+    n->z = (v1.x * v2.y - v1.y *  v2.x);
 
-    wrki = sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
+    wrki = sqrt(n->x * n->x + n->y * n->y + n->z * n->z);
 
-    n.x /= wrki;
-    n.y /= wrki;
-    n.z /= wrki;
+    n->x /= wrki;
+    n->y /= wrki;
+    n->z /= wrki;
 }
 
 bool IsInBounds(float x, float y)
@@ -491,21 +500,21 @@ void InitMap()
 
     bag[0].type = tex_mortar;
 
-    GLuint eye_resipe[3][3]
+    GLuint eye_resipe[3][3] = 
     {
         tex_yellow_flower, 0, tex_yellow_flower,
         0, tex_mushroom, 0,
         tex_yellow_flower, 0, tex_yellow_flower
     };
 
-    GLuint speed_resipe[3][3]
+    GLuint speed_resipe[3][3] = 
     {
         tex_red_flower, tex_red_flower, tex_red_flower,
         0, 0, 0,
         tex_red_flower, tex_red_flower, tex_red_flower
     };
 
-    GLuint health_resipe[3][3]
+    GLuint health_resipe[3][3] = 
     {
         0, tex_mushroom, 0,
         tex_mushroom, tex_mushroom, tex_mushroom,
@@ -573,7 +582,7 @@ void InitMap()
 
     for(int i = 0; i < MAP_SIZE - 1; ++i)
         for(int j = 0; j < MAP_SIZE - 1; ++j)
-           CalcNormals(vertices[i][j], vertices[i + 1][j], vertices[i][j + 1], normals[i][j]);
+           CalcNormals(&vertices[i][j], &vertices[i + 1][j], &vertices[i][j + 1], &normals[i][j]);
 
     GLuint grassCount = 2000;
     GLuint mushroomCount = 30;
@@ -626,12 +635,12 @@ void MovePlayer()
     pCamera->z = GetHeightInPoint(pCamera->x, pCamera->y) + 1.7f;
 }
 
-void UpdateBuffTimer(BuffTimer& bt)
+void UpdateBuffTimer(BuffTimer* bt)
 {
-    if (--bt.timer > 0)
+    if (--bt->timer > 0)
     {
-        if (bt.timer <= 0)
-            bt.max_time = 0;
+        if (bt->timer <= 0)
+            bt->max_time = 0;
     }
 }
 
@@ -648,8 +657,8 @@ void UpdatePlayerState()
             PostQuitMessage(0);
     }
 
-    UpdateBuffTimer(buffs.speed);
-    UpdateBuffTimer(buffs.eye);
+    UpdateBuffTimer(&buffs.speed);
+    UpdateBuffTimer(&buffs.eye);
 }
 
 void DrawScene()
@@ -872,10 +881,10 @@ void CollectObject(HWND hwnd)
     DrawScene();
     IsSelectMode = false;
 
-    RECT rect{};
+    RECT rect = {};
     GetClientRect(hwnd, &rect);
 
-    GLubyte clr[3]{};
+    GLubyte clr[3] = {};
     glReadPixels((float)rect.right * 0.5f, (float)rect.bottom * 0.5f, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, clr);
 
     if (clr[0] > 0)
@@ -1044,9 +1053,9 @@ void DrawCross()
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void DrawBuff(int x, int y, int scale, const BuffTimer& buff, GLuint tex_id)
+void DrawBuff(int x, int y, int scale, const BuffTimer* buff, GLuint tex_id)
 {
-    if (buff.timer > 0)
+    if (buff->timer > 0)
     {
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1065,7 +1074,7 @@ void DrawBuff(int x, int y, int scale, const BuffTimer& buff, GLuint tex_id)
             glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            glScalef(1, 1 - ((float)buff.timer / (float)buff.max_time), 1);
+            glScalef(1, 1 - ((float)buff->timer / (float)buff->max_time), 1);
             glColor4f(1, 1, 1, 0.5f);
             glDisable(GL_ALPHA_TEST);
             glDisable(GL_TEXTURE_2D);
@@ -1086,7 +1095,7 @@ void ClickOnCraftInterfase(int mx, int my, int button)
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
         {
-            if (IsPointInSlot(craft_interface.items[i][j], mx, my))
+            if (IsPointInSlot(&craft_interface.items[i][j], mx, my))
             {
                 GLuint type = handleItemType;
                 handleItemType = craft_interface.items[i][j].type;
@@ -1094,7 +1103,7 @@ void ClickOnCraftInterfase(int mx, int my, int button)
             }
         }
 
-    if (IsPointInSlot(craft_interface.result_item, mx, my) && handleItemType == 0 && craft_interface.result_item.type > 0)
+    if (IsPointInSlot(&craft_interface.result_item, mx, my) && handleItemType == 0 && craft_interface.result_item.type > 0)
     {
         handleItemType = craft_interface.result_item.type;
         craft_interface.result_item.type = 0;
@@ -1147,8 +1156,8 @@ void DrawInterface()
     DrawHealthLine(10, 70, 30);
     DrawCross();
     DrawCraftInterface();
-    DrawBuff(10, 110, 50, buffs.speed, tex_speed);
-    DrawBuff(60, 110, 50, buffs.eye, tex_eye);
+    DrawBuff(10, 110, 50, &buffs.speed, tex_speed);
+    DrawBuff(60, 110, 50, &buffs.eye, tex_eye);
     DrawItemInHand();
 }
 
@@ -1215,7 +1224,7 @@ int main()
     camera.angleZ = 0;
     pCamera = &camera;
 
-    RECT rect{};
+    RECT rect = {};
     GetClientRect(hwnd, &rect);
     ResizeWindow(rect.right, rect.bottom);
 

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.25.1)
 
-project(Platformer3D LANGUAGES C CXX)
+project(Platformer3D LANGUAGES C)
 
 set(EXTERNAL_SOURCE_DIR $ENV{External})
 
 set(SRC_FILES
-	src/Camera.cpp
-	src/main.cpp
+	src/Camera.c
+	src/main.c
 )
 
 set(HDR_FILES

@@ -1,14 +1,14 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-struct Camera
+typedef struct
 {
     float x;
     float y;
     float z;
     float angleX;
     float angleZ;
-};
+} Camera;
 
 void applyCamera(Camera* cam);
 void rotateCamera(Camera* cam, float dx, float dz);

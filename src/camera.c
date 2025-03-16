@@ -29,7 +29,7 @@ void rotateCamera(Camera* cam, float dx, float dz)
 
 void rotateByMouseCamera(Camera* cam, int x, int y, float speed)
 {
-    POINT cursor_pos{0, 0};
+    POINT cursor_pos = {0, 0};
     POINT base = {x, y};
 
     GetCursorPos(&cursor_pos);
