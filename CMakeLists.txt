@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25.1)
 
-project(Platformer3D LANGUAGES C)
+project(SurvivalSimulator LANGUAGES C)
 
 set(EXTERNAL_SOURCE_DIR $ENV{External})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})

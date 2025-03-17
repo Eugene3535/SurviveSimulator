@@ -897,10 +897,10 @@ void CollectObject(HWND hwnd)
     DrawScene();
     IsSelectMode = false;
 
-    RECT rect = {};
+    RECT rect;
     GetClientRect(hwnd, &rect);
 
-    GLubyte clr[3] = {};
+    GLubyte clr[3];
     glReadPixels((float)rect.right * 0.5f, (float)rect.bottom * 0.5f, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, clr);
 
     if (clr[0] > 0)
@@ -1253,7 +1253,7 @@ int main()
     camera.angleZ = 0;
     pCamera = &camera;
 
-    RECT rect = {};
+    RECT rect;
     GetClientRect(hwnd, &rect);
     ResizeWindow(rect.right, rect.bottom);
 
