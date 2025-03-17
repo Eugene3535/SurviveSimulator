@@ -1,6 +1,8 @@
 #include <Windows.h>
 #include <gl/gl.h>
 
+#include "cglm/util.h"
+
 #include "camera.h"
 #include "defines.h"
 
@@ -41,17 +43,17 @@ void rotateByMouseCamera(Camera* cam, int x, int y, float speed)
 
 void moveCamera(Camera* cam, int forward, int right, float speed)
 {
-    float angle = -cam->angleZ * DEGTORAD;
+    float angle = glm_rad(-cam->angleZ);
 
     if(forward > 0)
-        angle += right > 0 ? M_PI_4 : (right < 0 ? -M_PI_4 : 0);
+        angle += right > 0 ? GLM_PI_4 : (right < 0 ? -GLM_PI_4 : 0);
 
     if(forward < 0)
-        angle += M_PI + (right > 0 ? -M_PI_4 : (right < 0 ? M_PI_4 : 0));
+        angle += GLM_PI + (right > 0 ? -GLM_PI_4 : (right < 0 ? GLM_PI_4 : 0));
 
     if(forward == 0)
     {
-        angle += right > 0 ? M_PI_2 : -M_PI_2;
+        angle += right > 0 ? GLM_PI_2 : -GLM_PI_2;
 
         if(right == 0) speed = 0;
     }

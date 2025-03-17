@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 #include <Windows.h>
 #include <gl/gl.h>
 
@@ -219,6 +216,7 @@ typedef struct
 Resipe* resipes;
 const GLuint resipe_count = 3;
 
+
 void CheckResipe()
 {
     // for (const auto& resipe : resipes)
@@ -248,11 +246,13 @@ void CheckResipe()
 	}
 }
 
+
 bool IsPointInSlot(const Slot* slot, int x, int y)
 {
     return (x > slot->x && x < slot->x + slot->width &&
             y > slot->y && y < slot->y + slot->height);
 }
+
 
 void ResizeCraftInterface(int scale)
 {
@@ -278,6 +278,7 @@ void ResizeCraftInterface(int scale)
     craft_interface.result_item.height = scale;
 }
 
+
 void ResizeWindow(int w, int h)
 {
     glViewport(0, 0, w, h);
@@ -288,8 +289,10 @@ void ResizeWindow(int w, int h)
     ResizeCraftInterface(50);
 }
 
+
 void CollectObject(HWND hwnd);
 float GetHeightInPoint(float x, float y);
+
 
 void SetAnimation(Animation* pAnim, Object* pObj)
 {
@@ -301,6 +304,7 @@ void SetAnimation(Animation* pAnim, Object* pObj)
     pAnim->dy = (pCamera->y - pObj->y) / (float)pAnim->count;;
     pAnim->dz = ((pCamera->z - pObj->scale - 0.2f) - pObj->z) / (float)pAnim->count;;
 }
+
 
 void MoveAnimation(Animation* pAnim)
 {
@@ -332,6 +336,7 @@ void MoveAnimation(Animation* pAnim)
     }
 }
 
+
 GLuint GetTexture(const char* filepath)
 {
     int w, h, c; // width, height, channels
@@ -357,6 +362,7 @@ GLuint GetTexture(const char* filepath)
     return handle;
 }
 
+
 void CalcNormals(const Vertex* a, const Vertex* b, const Vertex* c, Vertex* n)
 {
     float wrki = 0;
@@ -374,10 +380,12 @@ void CalcNormals(const Vertex* a, const Vertex* b, const Vertex* c, Vertex* n)
     n->z /= wrki;
 }
 
+
 bool IsInBounds(float x, float y)
 {
     return (x >= 0) && (x < MAP_SIZE) && (y >= 0) && (y < MAP_SIZE);
 }
+
 
 void CreateHill(int x, int y, int r, int h)
 {
@@ -390,12 +398,13 @@ void CreateHill(int x, int y, int r, int h)
 
             if(L < r)
             {
-                L = L / r * M_PI_2;
+                L = L / r * GLM_PI_2;
                 vertices[i][j].z += cos(L) * h;
             }
         }
     }
 }
+
 
 void CreateCompositeTree(CompositeTree* tree, GLuint type, float x, float y)
 {
@@ -445,6 +454,7 @@ void CreateCompositeTree(CompositeTree* tree, GLuint type, float x, float y)
             }
 }
 
+
 float GetHeightInPoint(float x, float y)
 {
     if(IsInBounds(x, y))
@@ -461,6 +471,7 @@ float GetHeightInPoint(float x, float y)
     return 0;
 }
 
+
 void InitMap()
 {
     glEnable(GL_LIGHTING);
@@ -475,7 +486,7 @@ void InitMap()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     float l = 0.5f;
-    float a = M_PI * 2 / 40;
+    float a = GLM_PI * 2 / 40;
 
     for (int i = 0; i < 40; i += 2)
     {
@@ -621,6 +632,7 @@ void InitMap()
         CreateCompositeTree(trees + i, tex_wood, rand() % MAP_SIZE, rand() % MAP_SIZE);
 }
 
+
 void MovePlayer()
 {
     int forward = GetKeyState('W') < 0 ? 1 : (GetKeyState('S') < 0 ? - 1 : 0);
@@ -635,6 +647,7 @@ void MovePlayer()
     pCamera->z = GetHeightInPoint(pCamera->x, pCamera->y) + 1.7f;
 }
 
+
 void UpdateBuffTimer(BuffTimer* bt)
 {
     if (--bt->timer > 0)
@@ -643,6 +656,7 @@ void UpdateBuffTimer(BuffTimer* bt)
             bt->max_time = 0;
     }
 }
+
 
 void UpdatePlayerState()
 {
@@ -660,6 +674,7 @@ void UpdatePlayerState()
     UpdateBuffTimer(&buffs.speed);
     UpdateBuffTimer(&buffs.eye);
 }
+
 
 void DrawScene()
 {
@@ -875,6 +890,7 @@ void DrawScene()
     glPopMatrix();
 }
 
+
 void CollectObject(HWND hwnd)
 {
     IsSelectMode = true;
@@ -899,6 +915,7 @@ void CollectObject(HWND hwnd)
         }
     }
 }
+
 
 void DrawCell(int x, int y, int scaleX, int scaleY, GLuint type)
 {
@@ -935,17 +952,20 @@ void DrawCell(int x, int y, int scaleX, int scaleY, GLuint type)
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+
 void DrawBag(int x, int y, int scale)
 {
     for (int i = 0; i < BAG_SIZE; ++i)
         DrawCell(x + i * scale, y, scale, scale, bag[i].type);
 }
 
+
 void DrawItemInHand()
 {
     if(handleItemType > 0 && ! IsMouseBind)
         DrawCell(mousePos.x, mousePos.y, 50, 50, handleItemType);
 }
+
 
 GLuint GetItemCount(GLuint type)
 {
@@ -956,6 +976,7 @@ GLuint GetItemCount(GLuint type)
     
     return cnt;
 }
+
 
 void ClickOnBag(int x, int y, int scale, int mx, int my, UINT button)
 {
@@ -1011,6 +1032,7 @@ void ClickOnBag(int x, int y, int scale, int mx, int my, UINT button)
     }
 }
 
+
 void DrawHealthLine(int x, int y, int scale)
 {
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1030,6 +1052,7 @@ void DrawHealthLine(int x, int y, int scale)
 
     glDisableClientState(GL_VERTEX_ARRAY);
 }
+
 
 void DrawCross()
 {
@@ -1052,6 +1075,7 @@ void DrawCross()
 
     glDisableClientState(GL_VERTEX_ARRAY);
 }
+
 
 void DrawBuff(int x, int y, int scale, const BuffTimer* buff, GLuint tex_id)
 {
@@ -1088,6 +1112,7 @@ void DrawBuff(int x, int y, int scale, const BuffTimer* buff, GLuint tex_id)
     }
 }
 
+
 void ClickOnCraftInterfase(int mx, int my, int button)
 {
     if (!craft_interface.onDraw || button != WM_LBUTTONDOWN) return;
@@ -1116,6 +1141,7 @@ void ClickOnCraftInterfase(int mx, int my, int button)
     CheckResipe();
 }
 
+
 void DrawCraftInterface()
 {
     if (!craft_interface.onDraw || IsMouseBind) return;
@@ -1139,6 +1165,7 @@ void DrawCraftInterface()
         craft_interface.result_item.type);
 }
 
+
 void DrawInterface()
 {
     glMatrixMode(GL_PROJECTION);
@@ -1160,6 +1187,7 @@ void DrawInterface()
     DrawBuff(60, 110, 50, &buffs.eye, tex_eye);
     DrawItemInHand();
 }
+
 
 void ReleaseResources()
 {
@@ -1184,6 +1212,7 @@ void ReleaseResources()
     free(trees);
     free(objects);
 }
+
 
 int main()
 {

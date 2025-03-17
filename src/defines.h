@@ -1,11 +1,7 @@
 #ifndef DEFINES_HPP
 #define DEFINES_HPP
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-#define DEGTORAD 0.017453f
-#define RADTODEG 57.29577f
+#include <cglm/types.h>
 
 #define SELECTED_OBJECT_MAX 255
 #define MAP_SIZE 100
