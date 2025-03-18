@@ -4,15 +4,31 @@
 #include <Windows.h>
 #include <gl/gl.h>
 
+#include <wglext.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "camera.h"
 #include "defines.h"
 
+__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;
+
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
+
+GLboolean WGLExtensionSupported(const char* extension_name)
+{
+    PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglGetExtensionsStringEXT = NULL;
+    _wglGetExtensionsStringEXT = (PFNWGLGETEXTENSIONSSTRINGEXTPROC) wglGetProcAddress("wglGetExtensionsStringEXT");
+
+    if (strstr(_wglGetExtensionsStringEXT(), extension_name) == NULL)
+        return GL_FALSE;
+
+    return GL_TRUE;
+}
 
 POINT screen_size;
 float screen_ratio;
@@ -1243,6 +1259,16 @@ int main()
 
     EnableOpenGL(hwnd, &hDC, &hRC);
 
+    PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT = NULL;
+    PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = NULL;
+
+    if(WGLExtensionSupported("WGL_EXT_swap_control"))
+    {
+        wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
+        wglGetSwapIntervalEXT = (PFNWGLGETSWAPINTERVALEXTPROC) wglGetProcAddress("wglGetSwapIntervalEXT");
+        wglSwapIntervalEXT(1);
+    }
+
     glEnable(GL_DEPTH_TEST);
 
     Camera camera;
@@ -1290,8 +1316,6 @@ int main()
             DrawInterface();
 
             SwapBuffers(hDC);
-
-            Sleep (1.0f / 60.0f);
         }
     }
 

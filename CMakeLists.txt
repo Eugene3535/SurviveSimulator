@@ -39,6 +39,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${EXTERNAL_SOURCE_DIR}/stb
+	${EXTERNAL_SOURCE_DIR}/GLext/win32
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
