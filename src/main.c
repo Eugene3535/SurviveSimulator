@@ -2,8 +2,8 @@
 #include <stdbool.h>
 
 #include <Windows.h>
-#include <gl/gl.h>
 
+#include <glad/glad.h>
 #include <wglext.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -80,11 +80,17 @@ Object* objects;
 GLuint objectCount;
 
 Vertex vertices[MAP_SIZE][MAP_SIZE];
-Vertex normals[MAP_SIZE][MAP_SIZE];
 TexCoords tex_coords[MAP_SIZE][MAP_SIZE];
-
+Vertex normals[MAP_SIZE][MAP_SIZE];
 GLuint indices[MAP_SIZE - 1][MAP_SIZE - 1][6];
+
 GLuint indexCount = sizeof(indices) / sizeof(GLuint);
+
+GLuint buffers[4];
+// [0] vertex buffer object
+// [1] tex coord buffer object
+// [2] normal buffer object
+// [3] index buffer object
 
 Camera* pCamera;
 
@@ -297,12 +303,15 @@ void ResizeCraftInterface(int scale)
 
 void ResizeWindow(int w, int h)
 {
-    glViewport(0, 0, w, h);
-    screen_size.x = w;
-    screen_size.y = h;
-    screen_ratio = (float)w / (float)h;
+    if(glViewport)
+    {
+        glViewport(0, 0, w, h);
+        screen_size.x = w;
+        screen_size.y = h;
+        screen_ratio = (float)w / (float)h;
 
-    ResizeCraftInterface(50);
+        ResizeCraftInterface(50);
+    }
 }
 
 
@@ -611,6 +620,29 @@ void InitMap()
         for(int j = 0; j < MAP_SIZE - 1; ++j)
            CalcNormals(&vertices[i][j], &vertices[i + 1][j], &vertices[i][j + 1], &normals[i][j]);
 
+//  VBO
+    glGenBuffers(4, buffers);
+
+//  Vertices
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+//  Texture coords
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tex_coords), tex_coords, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+//  Normals
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+//  Indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[3]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     GLuint grassCount = 2000;
     GLuint mushroomCount = 30;
     GLuint treeCount = 40;
@@ -786,20 +818,33 @@ void DrawScene()
 //  Draw terrain
     if (!IsSelectMode)
     {
+        glBindTexture(GL_TEXTURE_2D, tex_field);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+        glVertexPointer(3, GL_FLOAT, 0, NULL);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+        glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+        glNormalPointer(GL_FLOAT, 0, NULL);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
 
-        glVertexPointer(3, GL_FLOAT, 0, vertices);
-        glTexCoordPointer(2, GL_FLOAT, 0, tex_coords);
-        glNormalPointer(GL_FLOAT, 0, normals);
-        glBindTexture(GL_TEXTURE_2D, tex_field);
-
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[3]);
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, NULL);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
 //  Draw objects
@@ -1222,6 +1267,8 @@ void ReleaseResources()
     glDeleteTextures(1, &tex_speed_potion);
     glDeleteTextures(1, &tex_health_potion);
 
+    glDeleteBuffers(4, buffers);
+
     for (GLuint i = 0; i < tree_count; ++i)
         free(trees[i].tree_parts);
 
@@ -1258,6 +1305,9 @@ int main()
     SetCursor(wcex.hCursor);
 
     EnableOpenGL(hwnd, &hDC, &hRC);
+
+    if(!gladLoadGL())
+        return -1;
 
     PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT = NULL;
     PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = NULL;

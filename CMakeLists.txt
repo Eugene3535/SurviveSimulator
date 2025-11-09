@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.25.1)
 
 project(SurvivalSimulator LANGUAGES C)
 
+set(BUILD_SHARED_LIBS ON)
 set(EXTERNAL_SOURCE_DIR $ENV{External})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -27,12 +28,12 @@ set(HDR_FILES
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${HDR_FILES})
+add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/compatibility glad)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/cglm cglm)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-	opengl32 
-	glu32 
-	gdi32
+	glad
+	opengl32
 	cglm
 )
 
